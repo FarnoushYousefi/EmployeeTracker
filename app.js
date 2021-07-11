@@ -18,6 +18,11 @@ function choices() {
           'Update employee role',
           'Delete an employee',
           'View employees by department',
+          'Update employee managers',
+          'View employees by manager',
+          'total Salary',
+          'Delete roles',
+          'Delete Department',
           'EXIT',
         ],
       },
@@ -39,14 +44,34 @@ function choices() {
         case 'Add a department':
           addDepartment();
           break;
+        case 'Add a role':
+          addRole();
+          break;
         case 'Update employee role':
           UpdateRole();
           break;
+
         case 'Delete an employee':
           DeleteEmployee();
           break;
         case 'View employees by department':
           ViewEmployeesByDepartment();
+          break;
+        case 'Update employee managers':
+          UpdatEmployeeManagers();
+          break;
+        case 'View employees by manager':
+          ViewEmployeesByManager();
+          break;
+
+        case 'total Salary':
+          totalSalary();
+          break;
+        case 'Delete roles':
+          Deleteroles();
+          break;
+        case 'Delete Department':
+          DeleteDepartment();
           break;
       }
     });
@@ -127,6 +152,30 @@ function addDepartment() {
       });
     });
 }
+
+function addRole() {
+  inquirer
+    .prompt([
+      {
+        name: 'title',
+        type: 'input',
+        message: 'ENter the title of role',
+      },
+      {
+        name: 'salary',
+        type: 'input',
+        message: 'ENter the salary of the role',
+      },
+    ])
+    .then((answers) => {
+      const query = `INSERT INTO role (title, salary) VALUES ("${answers.title}","${answers.title}")`;
+      db.query(query, function (err, result, fields) {
+        if (err) throw err;
+        console.table(result);
+        choices();
+      });
+    });
+}
 function ViewEmployeesByDepartment() {
   db.query('SELECT * FROM department', function (err, result, fields) {
     if (err) throw err;
@@ -161,6 +210,165 @@ function ViewEmployeesByDepartment() {
   }
 }
 
+function UpdateRole() {
+  inquirer
+    .prompt([
+      {
+        name: 'roleId',
+        type: 'input',
+        message: 'Enter the id of role',
+      },
+      {
+        name: 'employeeId',
+        type: 'input',
+        message: 'ENter the employee id',
+      },
+    ])
+    .then((answers) => {
+      const query = `UPDATE employee SET role_id = ${answers.roleId} WHERE id = ${answers.employeeId}`;
+      db.query(query, function (err, result) {
+        if (err) throw err;
+        console.table(result);
+        choices();
+      });
+    });
+}
+
+function DeleteEmployee() {
+  //viewAllEmployee();
+
+  inquirer
+    .prompt([
+      {
+        name: 'deleteEmpId',
+        type: 'input',
+        message: 'Which employee do you want to remove? (Enter id Here)',
+      },
+    ])
+    .then((answer) => {
+      const sql = `DELETE FROM employee WHERE id = ${answer.deleteEmpId}`;
+
+      db.query(sql, function (err, result) {
+        if (err) throw err;
+        console.table(result);
+        choices();
+      });
+    });
+}
+function UpdatEmployeeManagers() {
+  inquirer
+    .prompt([
+      {
+        name: 'employeeId',
+        type: 'input',
+        message: 'Enter the id of employee',
+      },
+      {
+        name: 'ManagerId',
+        type: 'input',
+        message: 'ENter the Manager id',
+      },
+    ])
+    .then((answers) => {
+      const query = `UPDATE employee SET manager_id = ${answers.ManagerId} WHERE id = ${answers.employeeId}`;
+      db.query(query, function (err, result) {
+        if (err) throw err;
+        console.table(result);
+        choices();
+      });
+    });
+}
+
+function ViewEmployeesByManager() {
+  inquirer
+    .prompt([
+      {
+        name: 'managerId',
+        type: 'input',
+        message: 'Which Employees based on the manager you would like to see?',
+      },
+    ])
+    .then((answer) => {
+      console.log(answer);
+      const sql = `SELECT * FROM employee WHERE employee.manager_id = ${answer.managerId}`;
+
+      db.query(sql, function (err, result, fields) {
+        if (err) throw err;
+        console.table(result);
+        choices();
+      });
+    });
+}
+function totalSalary() {
+  inquirer
+    .prompt([
+      {
+        name: 'DepartmentId',
+        type: 'input',
+        message: 'Which department you would like to see the TotalSalary',
+      },
+    ])
+    .then((answers) => {
+      const query = `
+        SELECT
+         department_id, 
+         SUM(role.salary) AS departmentTotal 
+         FROM role group by  department_id
+         having department_id = ${answers.DepartmentId}
+        `;
+      db.query(query, function (err, result) {
+        if (err) throw err;
+        console.table(result);
+        choices();
+      });
+    });
+}
+function Deleteroles() {
+  inquirer
+    .prompt([
+      {
+        name: 'roleId',
+        type: 'input',
+        message: 'Which role do you want to remove? (Enter id Here)',
+      },
+    ])
+    .then((answer) => {
+      const sql = `DELETE FROM role WHERE id = ${answer.roleId}`;
+
+      db.query(sql, function (err, result) {
+        if (err) throw err;
+        console.table(result);
+        choices();
+      });
+    });
+}
+function DeleteDepartment() {
+  inquirer
+    .prompt([
+      {
+        name: 'DepartmentId',
+        type: 'input',
+        message: 'Which department do you want to remove? (Enter id Here)',
+      },
+    ])
+    .then((answer) => {
+      const sql = `DELETE FROM department WHERE id = ${answer.DepartmentId}`;
+
+      db.query(sql, function (err, result) {
+        if (err) throw err;
+        console.table(result);
+        choices();
+      });
+    });
+}
+// function runingInquirerRole(result) {
+//   let RoleReasult = result.map((item) => ({
+//     id: item.id,
+//     title: item.title,
+//     salary: item.salary,
+//     department_id: item.department_id,
+//   }));
+// }
 // db.query('SELECT * FROM employee', function (err, result, fields) {
 //   if (err) throw err;
 //   console.table(result);
