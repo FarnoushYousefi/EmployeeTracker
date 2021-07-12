@@ -73,6 +73,9 @@ function choices() {
         case 'Delete Department':
           DeleteDepartment();
           break;
+        case 'EXIT':
+          exit();
+          break;
       }
     });
 }
@@ -168,7 +171,7 @@ function addRole() {
       },
     ])
     .then((answers) => {
-      const query = `INSERT INTO role (title, salary) VALUES ("${answers.title}","${answers.title}")`;
+      const query = `INSERT INTO role (title, salary) VALUES ("${answers.title}","${answers.salary}")`;
       db.query(query, function (err, result, fields) {
         if (err) throw err;
         console.table(result);
@@ -205,6 +208,7 @@ function ViewEmployeesByDepartment() {
         db.query(sql, function (err, result, fields) {
           if (err) throw err;
           console.table(result);
+          choices();
         });
       });
   }
@@ -352,7 +356,7 @@ function DeleteDepartment() {
       },
     ])
     .then((answer) => {
-      const sql = `DELETE FROM department WHERE id = ${answer.DepartmentId}`;
+      const sql = `DELETE FROM department WHERE id = ${answer.DepartmentId} `;
 
       db.query(sql, function (err, result) {
         if (err) throw err;
@@ -360,6 +364,11 @@ function DeleteDepartment() {
         choices();
       });
     });
+}
+
+// exit the app
+function exit() {
+  db.end();
 }
 // function runingInquirerRole(result) {
 //   let RoleReasult = result.map((item) => ({
